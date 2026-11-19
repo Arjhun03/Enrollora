@@ -7,8 +7,30 @@
       <p>Manage courses, fees, capacity and availability.</p>
     </div>
 
-    <button class="btn-add"><span>+</span> Add New Course</button>
+    <button class="btn-add" type="button" (click)="openCreateForm()"><span>+</span> Add New Course</button>
   </div>
+
+  @if (isCreateFormOpen()) {
+    <div class="modal-backdrop" (click)="closeCreateForm()">
+      <section class="course-modal" role="dialog" aria-modal="true" aria-labelledby="create-course-title" (click)="$event.stopPropagation()">
+        <div class="modal-heading">
+          <div><span class="eyebrow">COURSE MANAGEMENT</span><h2 id="create-course-title">Add New Course</h2><p>Enter the details for the new course.</p></div>
+          <button class="modal-close" type="button" aria-label="Close" (click)="closeCreateForm()" [disabled]="isSaving()">×</button>
+        </div>
+        <form (ngSubmit)="createCourse()" #courseForm="ngForm">
+          <label>Course name<input name="courseName" [(ngModel)]="newCourse.courseName" required maxlength="150" placeholder="e.g. Data Science" /></label>
+          <label>Duration<input name="duration" [(ngModel)]="newCourse.duration" required maxlength="80" placeholder="e.g. 12 weeks" /></label>
+          <div class="form-row">
+            <label>Fees (₹)<input name="fees" type="number" [(ngModel)]="newCourse.fees" required min="0" step="0.01" /></label>
+            <label>Capacity<input name="capacity" type="number" [(ngModel)]="newCourse.capacity" required min="1" step="1" /></label>
+          </div>
+          <label class="active-toggle"><input name="isActive" type="checkbox" [(ngModel)]="newCourse.isActive" /> Make course available for enrollment</label>
+          @if (createError()) { <p class="form-error" role="alert">{{ createError() }}</p> }
+          <div class="modal-actions"><button class="btn-cancel" type="button" (click)="closeCreateForm()" [disabled]="isSaving()">Cancel</button><button class="btn-submit" type="submit" [disabled]="courseForm.invalid || isSaving()">{{ isSaving() ? 'Saving...' : 'Create Course' }}</button></div>
+        </form>
+      </section>
+    </div>
+  }
 
   <!-- Summary Cards -->
   <div class="summary-grid">

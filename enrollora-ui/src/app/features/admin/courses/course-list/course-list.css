@@ -490,3 +490,26 @@
     padding: 18px;
   }
 }
+
+/* Create course dialog */
+.modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(30, 24, 43, .48); }
+.course-modal { width: min(100%, 520px); max-height: calc(100vh - 40px); overflow-y: auto; padding: 26px; border-radius: 16px; background: #fff; box-shadow: 0 20px 60px rgba(24, 18, 38, .24); }
+.modal-heading { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; }
+.modal-heading h2 { margin: 6px 0; color: #302942; font-size: 22px; }
+.modal-heading p { margin: 0; color: #898397; font-size: 13px; }
+.modal-close { border: 0; background: transparent; color: #746d80; font-size: 27px; cursor: pointer; }
+.course-modal form, .course-modal label { display: grid; gap: 8px; }
+.course-modal form { gap: 16px; }
+.course-modal label { color: #514963; font-size: 13px; font-weight: 700; }
+.course-modal input:not([type='checkbox']) { width: 100%; box-sizing: border-box; padding: 11px 12px; border: 1px solid #e5e1ec; border-radius: 8px; font: inherit; font-weight: 400; }
+.course-modal input:focus { outline: 2px solid #c4b5fd; border-color: #8b5cf6; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.active-toggle { display: flex !important; align-items: center; font-weight: 500 !important; }
+.active-toggle input { accent-color: #8b5cf6; }
+.form-error { margin: 0; color: #c24141; font-size: 13px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.btn-cancel, .btn-submit { padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.btn-cancel { border: 1px solid #e5e1ec; background: #fff; color: #635a75; }
+.btn-submit { border: 0; background: #8b5cf6; color: #fff; }
+.btn-submit:disabled, .btn-cancel:disabled { opacity: .55; cursor: not-allowed; }
+@media (max-width: 480px) { .course-modal { padding: 20px; } .form-row { grid-template-columns: 1fr; } }
