@@ -1,0 +1,233 @@
+<div class="cancellation-page">
+  <!-- Page Header -->
+  <div class="page-heading">
+    <div>
+      <h2>Cancellation Requests</h2>
+      <p>Review and process student course cancellation applications.</p>
+    </div>
+    <div class="request-count">
+      Total Requests: <strong>{{ totalRecords() }}</strong>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <span>✓</span> {{ successMessage() }}
+    </div>
+  }
+
+  <!-- Filter Card -->
+  <div class="filter-card">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label">Search Student</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by student name or email..."
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onFilterChange()"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Status</label>
+        <select class="form-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+          <option [ngValue]="null">All Statuses</option>
+          <option [ngValue]="0">Pending</option>
+          <option [ngValue]="1">Approved</option>
+          <option [ngValue]="2">Rejected</option>
+        </select>
+      </div>
+
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1" (click)="onFilterChange()">
+          Apply Filter
+        </button>
+        <button
+          class="btn btn-outline-secondary"
+          (click)="searchTerm = ''; selectedStatus = null; onFilterChange()"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content State -->
+  @if (isLoading()) {
+    <div class="state-card">
+      <div class="loader"></div>
+      <p>Loading cancellation requests...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="alert alert-danger">
+      {{ errorMessage() }}
+      <button class="btn btn-sm btn-outline-danger ms-2" (click)="loadRequests()">Retry</button>
+    </div>
+  } @else {
+    <div class="table-card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Request #</th>
+              <th>Student</th>
+              <th>Course</th>
+              <th>Reason</th>
+              <th>Requested At</th>
+              <th>Status</th>
+              <th>Admin Remarks</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of requests(); track item.cancellationRequestId) {
+              <tr>
+                <td>#{{ item.cancellationRequestId }}</td>
+                <td>
+                  <div class="student-info">
+                    <strong>{{ item.studentName }}</strong>
+                    <small>{{ item.studentEmail }}</small>
+                  </div>
+                </td>
+                <td>
+                  <span class="course-badge">{{ item.courseName }}</span>
+                </td>
+                <td class="reason-cell" [title]="item.reason">
+                  {{ item.reason }}
+                </td>
+                <td>{{ item.requestedAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+                <td>
+                  <span class="status-pill" [ngClass]="getStatusBadgeClass(item.status)">
+                    {{ getStatusLabel(item.status) }}
+                  </span>
+                </td>
+                <td class="remarks-cell">
+                  {{ item.adminRemarks || '—' }}
+                </td>
+                <td class="text-end">
+                  @if (item.status === 0) {
+                    <div class="btn-group">
+                      <button
+                        class="btn btn-sm btn-approve"
+                        (click)="openReviewModal(item, 'approve')"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        class="btn btn-sm btn-reject"
+                        (click)="openReviewModal(item, 'reject')"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  } @else {
+                    <span class="text-muted small">Reviewed</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                  No cancellation requests found.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <span>Showing {{ requests().length }} of {{ totalRecords() }} requests</span>
+        <div class="d-flex align-items-center gap-2">
+          <button
+            class="btn btn-sm btn-light"
+            (click)="previousPage()"
+            [disabled]="pageNumber() === 1"
+          >
+            Previous
+          </button>
+          <span class="current-page">{{ pageNumber() }} / {{ totalPages() || 1 }}</span>
+          <button
+            class="btn btn-sm btn-light"
+            (click)="nextPage()"
+            [disabled]="pageNumber() >= totalPages()"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Review Modal Dialog -->
+  @if (isModalOpen() && selectedRequest()) {
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h5>
+            {{ modalAction() === 'approve' ? 'Approve Cancellation' : 'Reject Cancellation' }}
+          </h5>
+          <button class="close-btn" (click)="closeReviewModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p>
+            You are about to
+            <strong>{{ modalAction() }}</strong>
+            the cancellation request for student
+            <strong>{{ selectedRequest()?.studentName }}</strong>
+            in course <strong>{{ selectedRequest()?.courseName }}</strong>.
+          </p>
+
+          <div class="student-reason-box">
+            <small>Student's Reason:</small>
+            <p>{{ selectedRequest()?.reason }}</p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Admin Remarks (Optional)</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              maxlength="1000"
+              placeholder="Add optional notes or feedback for the student..."
+              [(ngModel)]="adminRemarks"
+            ></textarea>
+          </div>
+
+          @if (modalError()) {
+            <div class="alert alert-danger py-2 mb-3">
+              {{ modalError() }}
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-light"
+            (click)="closeReviewModal()"
+            [disabled]="isReviewing()"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            [class]="modalAction() === 'approve' ? 'btn btn-success' : 'btn btn-danger'"
+            (click)="submitReview()"
+            [disabled]="isReviewing()"
+          >
+            @if (isReviewing()) {
+              Processing...
+            } @else {
+              Confirm {{ modalAction() === 'approve' ? 'Approval' : 'Rejection' }}
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
