@@ -30,6 +30,8 @@ export class CourseListComponent implements OnInit {
   isCreateFormOpen = signal(false);
   isSaving = signal(false);
   createError = signal('');
+  isDeactivating = signal<number | null>(null);
+  deactivateError = signal('');
   newCourse: SaveCourseRequest = { courseName: '', duration: '', fees: 0, capacity: 1, isActive: true };
 
   ngOnInit(): void {
@@ -91,6 +93,25 @@ export class CourseListComponent implements OnInit {
         console.error('Error creating course:', error);
         this.createError.set(error?.error?.message ?? 'Unable to create course. Please try again.');
         this.isSaving.set(false);
+      },
+    });
+  }
+
+  deactivateCourse(course: CourseResponse): void {
+    if (!course.isActive || this.isDeactivating() !== null) return;
+    if (!window.confirm(`Deactivate "${course.courseName}"? Existing enrollment history will be preserved.`)) return;
+
+    this.isDeactivating.set(course.courseId);
+    this.deactivateError.set('');
+    this.courseService.deactivateCourse(course.courseId).subscribe({
+      next: () => {
+        this.isDeactivating.set(null);
+        this.loadCourses();
+      },
+      error: (error) => {
+        console.error('Error deactivating course:', error);
+        this.deactivateError.set(error?.error?.message ?? 'Unable to deactivate course. Please try again.');
+        this.isDeactivating.set(null);
       },
     });
   }

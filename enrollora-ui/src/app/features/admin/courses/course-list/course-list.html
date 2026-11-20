@@ -106,6 +106,7 @@
 
     <!-- Course Data -->
     @else {
+      @if (deactivateError()) { <p class="form-error" role="alert">{{ deactivateError() }}</p> }
       <div class="table-responsive">
         <table class="course-table">
           <thead>
@@ -116,6 +117,7 @@
               <th>ENROLLMENT</th>
               <th>AVAILABLE SEATS</th>
               <th>STATUS</th>
+              <th>ACTIONS</th>
             </tr>
           </thead>
 
@@ -133,7 +135,6 @@
                     </div>
                   </div>
                 </td>
-
                 <td>
                   <span class="duration">
                     {{ course.duration }}
@@ -177,6 +178,14 @@
                     <span class="status-dot"></span>
                     {{ course.isActive ? 'Active' : 'Inactive' }}
                   </span>
+                </td>
+
+                <td>
+                  @if (course.isActive) {
+                    <button class="btn-cancel" type="button" (click)="deactivateCourse(course)" [disabled]="isDeactivating() !== null">
+                      {{ isDeactivating() === course.courseId ? 'Deactivating...' : 'Deactivate' }}
+                    </button>
+                  } @else { <span>—</span> }
                 </td>
               </tr>
             }
