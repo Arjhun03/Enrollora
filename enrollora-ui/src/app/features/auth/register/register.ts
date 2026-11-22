@@ -37,14 +37,8 @@ export class Register {
 
     this.authService.register(this.registerRequest).subscribe({
       next: (response) => {
-        this.successMessage =
-          'Registration successful! Your account is pending administrator approval. You can log in once your account is approved.';
-
         this.isLoading = false;
-
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 4000);
+        this.router.navigate(['/login'], { queryParams: { registered: 'true' } });
       },
       error: (error) => {
         this.errorMessage =
