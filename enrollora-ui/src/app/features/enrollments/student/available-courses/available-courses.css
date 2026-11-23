@@ -8,6 +8,10 @@
   margin-bottom: 24px;
 }
 
+.course-search { display: flex; align-items: center; gap: 9px; max-width: 420px; margin: 0 0 22px; padding: 10px 13px; border: 1px solid #e9e5f0; border-radius: 9px; background: #fff; color: #8b5cf6; }
+.course-search input { width: 100%; border: 0; outline: 0; color: #342c47; font: inherit; font-size: 13px; }
+.course-search:focus-within { border-color: #a78bfa; box-shadow: 0 0 0 3px #8b5cf61a; }
+
 .eyebrow {
   color: #8b5cf6;
   font-size: 11px;

@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 
@@ -9,7 +10,7 @@ import { EnrollmentService } from '../../enrollment.service';
 @Component({
   selector: 'app-available-courses',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   styleUrl: './available-courses.css',
   templateUrl: './available-courses.html',
 })
@@ -26,6 +27,7 @@ export class AvailableCourses implements OnInit {
 
   pageNumber = signal(1);
   pageSize = signal(9);
+  searchTerm = signal('');
   totalRecords = signal(0);
   totalPages = signal(0);
 
@@ -38,7 +40,7 @@ export class AvailableCourses implements OnInit {
     this.errorMessage.set('');
 
     this.courseService
-      .getCourses(this.pageNumber(), this.pageSize(), { isActive: true })
+      .getCourses(this.pageNumber(), this.pageSize(), { isActive: true, search: this.searchTerm().trim() || undefined })
       .subscribe({
         next: (response) => {
           this.courses.set(
@@ -55,6 +57,12 @@ export class AvailableCourses implements OnInit {
           this.isLoading.set(false);
         },
       });
+  }
+
+  searchCourses(value: string): void {
+    this.searchTerm.set(value);
+    this.pageNumber.set(1);
+    this.loadCourses();
   }
 
   enroll(course: CourseResponse): void {

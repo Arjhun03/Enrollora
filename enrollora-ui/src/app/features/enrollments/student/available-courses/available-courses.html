@@ -7,6 +7,8 @@
     </div>
   </div>
 
+  <label class="course-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search courses by name" aria-label="Search courses by name" [ngModel]="searchTerm()" (ngModelChange)="searchCourses($event)" /></label>
+
   @if (successMessage()) {
     <div class="alert success-alert">
       <span>✓</span>

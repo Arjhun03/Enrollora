@@ -74,8 +74,10 @@
         <h2>All Courses</h2>
         <p>View and manage your available courses.</p>
       </div>
-
-      <span class="record-count"> {{ totalRecords() }} courses </span>
+      <div class="course-toolbar">
+        <label class="course-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search courses by name" aria-label="Search courses by name" [ngModel]="searchTerm()" (ngModelChange)="searchCourses($event)" /></label>
+        <span class="record-count"> {{ totalRecords() }} courses </span>
+      </div>
     </div>
 
     <!-- Loading -->

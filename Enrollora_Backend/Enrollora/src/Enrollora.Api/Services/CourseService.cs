@@ -18,7 +18,15 @@ public sealed class CourseService(
         var q = courses.Query().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(query.Search))
-            q = q.Where(x => x.CourseName.Contains(query.Search.Trim()));
+        {
+            var search = query.Search.Trim();
+            q = q.Where(x => x.CourseName.Contains(search));
+        }
+
+        // Students can browse only courses currently open for enrollment.
+        // Administrators may pass IsActive=false to find inactive courses.
+        if (!query.IsActive.HasValue)
+            q = q.Where(x => x.IsActive);
 
         if (query.IsActive.HasValue)
             q = q.Where(x => x.IsActive == query.IsActive);

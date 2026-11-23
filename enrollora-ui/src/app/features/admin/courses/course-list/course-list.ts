@@ -23,6 +23,7 @@ export class CourseListComponent implements OnInit {
 
   pageNumber = signal(1);
   pageSize = signal(10);
+  searchTerm = signal('');
 
   totalRecords = signal(0);
   totalPages = signal(0);
@@ -43,7 +44,7 @@ export class CourseListComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.courseService.getCourses(this.pageNumber(), this.pageSize()).subscribe({
+    this.courseService.getCourses(this.pageNumber(), this.pageSize(), { search: this.searchTerm().trim() || undefined }).subscribe({
       next: (response) => {
         this.courses.set(response.items);
 
@@ -61,6 +62,12 @@ export class CourseListComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  searchCourses(value: string): void {
+    this.searchTerm.set(value);
+    this.pageNumber.set(1);
+    this.loadCourses();
   }
 
   openCreateForm(): void {
