@@ -48,6 +48,7 @@ export const routes: Routes = [
             (m) => m.AdminCancellationRequestsComponent,
           ),
       },
+      { path: 'feedback', loadComponent: () => import('./features/feedback/admin/admin-feedback').then(m => m.AdminFeedback) },
     ],
   },
   {
@@ -83,6 +84,7 @@ export const routes: Routes = [
             (m) => m.StudentCancellationRequestsComponent,
           ),
       },
+      { path: 'feedback', loadComponent: () => import('./features/feedback/student/feedback-form').then(m => m.FeedbackForm) },
       {
         path: '',
         redirectTo: 'courses',

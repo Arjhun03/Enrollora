@@ -134,6 +134,26 @@ namespace Enrollora.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Enrollora.Api.Models.CourseFeedback", b =>
+                {
+                    b.Property<int>("CourseFeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseFeedbackId"));
+
+                    b.Property<int>("CourseId").HasColumnType("int");
+                    b.Property<string>("Comment").IsRequired().HasMaxLength(2000).HasColumnType("nvarchar(2000)");
+                    b.Property<int>("Rating").HasColumnType("int");
+                    b.Property<DateTime>("SubmittedAt").HasColumnType("datetime2");
+                    b.Property<int>("StudentId").HasColumnType("int");
+                    b.HasKey("CourseFeedbackId");
+                    b.HasIndex("CourseId");
+                    b.HasIndex("StudentId");
+                    b.HasIndex("SubmittedAt");
+                    b.ToTable("CourseFeedback");
+                });
+
             modelBuilder.Entity("Enrollora.Api.Models.Enrollment", b =>
                 {
                     b.Property<int>("EnrollmentId")
@@ -161,6 +181,24 @@ namespace Enrollora.Api.Migrations
                     b.HasIndex("StudentId", "CourseId", "Status");
 
                     b.ToTable("Enrollments");
+                });
+
+            modelBuilder.Entity("Enrollora.Api.Models.CourseFeedback", b =>
+                {
+                    b.HasOne("Enrollora.Api.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Enrollora.Api.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Enrollora.Api.Models.Student", b =>

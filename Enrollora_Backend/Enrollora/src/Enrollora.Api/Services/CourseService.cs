@@ -7,7 +7,9 @@ namespace Enrollora.Api.Services;
 
 public sealed class CourseService(
     IRepository<Course> courses,
-    IRepository<Enrollment> enrollments) : ICourseService
+    IRepository<Enrollment> enrollments,
+    IRepository<CourseFeedback> feedback,
+    IRepository<Student> students) : ICourseService
 {
 
     public async Task<PagedResult<CourseResponse>> GetCoursesAsync(
@@ -150,6 +152,29 @@ public sealed class CourseService(
         course.IsActive = false;
         courses.Update(course);
         await courses.SaveChangesAsync(ct);
+    }
+
+    public async Task<CourseFeedbackResponse> AddFeedbackAsync(int studentId, CreateCourseFeedbackRequest request, CancellationToken ct)
+    {
+        var course = await FindAsync(request.CourseId, ct);
+        var student = await students.Query().FirstOrDefaultAsync(x => x.StudentId == studentId, ct)
+            ?? throw new KeyNotFoundException("Student was not found.");
+        var enrolled = await enrollments.Query().AnyAsync(x => x.CourseId == request.CourseId && x.StudentId == studentId, ct);
+        if (!enrolled) throw new InvalidOperationException("Only students enrolled in a course can submit feedback.");
+        var item = new CourseFeedback { StudentId = studentId, CourseId = request.CourseId, Rating = request.Rating, Comment = request.Comment.Trim() };
+        await feedback.AddAsync(item, ct);
+        await feedback.SaveChangesAsync(ct);
+        return new(item.CourseFeedbackId, course.CourseId, course.CourseName, studentId, student.Name, item.Rating, item.Comment, item.SubmittedAt);
+    }
+
+    public async Task<PagedResult<CourseFeedbackResponse>> GetFeedbackAsync(int? courseId, PaginationQuery query, CancellationToken ct)
+    {
+        query.Normalize();
+        var q = feedback.Query().Where(x => !courseId.HasValue || x.CourseId == courseId.Value);
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(x => x.SubmittedAt).Skip((query.PageNumber - 1) * query.PageSize).Take(query.PageSize)
+            .Select(x => new CourseFeedbackResponse(x.CourseFeedbackId, x.CourseId, x.Course.CourseName, x.StudentId, x.Student.Name, x.Rating, x.Comment, x.SubmittedAt)).ToListAsync(ct);
+        return new(rows, query.PageNumber, query.PageSize, total, (int)Math.Ceiling(total / (double)query.PageSize));
     }
 
     private async Task<Course> FindAsync(int id, CancellationToken ct) =>

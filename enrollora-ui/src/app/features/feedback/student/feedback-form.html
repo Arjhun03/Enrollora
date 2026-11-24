@@ -1,0 +1,24 @@
+<div class="feedback-page">
+  <header><span class="eyebrow">YOUR VOICE MATTERS</span><h1>Course Feedback</h1><p>Share your experience with the course team.</p></header>
+  @if (loading()) { <div class="feedback-card">Loading your enrolled courses…</div> }
+  @else if (!enrollments().length) { <div class="feedback-card"><h2>No active enrollments</h2><p>Enroll in a course before sending feedback.</p></div> }
+  @else {
+    <form class="feedback-card" (ngSubmit)="submit()">
+      <label for="course">Course</label>
+      <select id="course" name="course" [(ngModel)]="courseId" required>
+        <option [ngValue]="null" disabled>Select a course</option>
+        @for (enrollment of enrollments(); track enrollment.enrollmentId) { <option [ngValue]="enrollment.courseId">{{ enrollment.courseName }}</option> }
+      </select>
+      <label for="rating">Rating</label>
+      <select id="rating" name="rating" [(ngModel)]="rating" required>
+        <option [ngValue]="5">★★★★★ — Excellent</option><option [ngValue]="4">★★★★☆ — Very good</option><option [ngValue]="3">★★★☆☆ — Good</option><option [ngValue]="2">★★☆☆☆ — Fair</option><option [ngValue]="1">★☆☆☆☆ — Poor</option>
+      </select>
+      <label for="comment">Your feedback</label>
+      <textarea id="comment" name="comment" [(ngModel)]="comment" maxlength="2000" rows="6" placeholder="What worked well? What could be improved?" required></textarea>
+      <small>{{ comment.length }}/2000</small>
+      @if (error()) { <div class="alert alert-danger">{{ error() }}</div> }
+      @if (success()) { <div class="alert alert-success">{{ success() }}</div> }
+      <button type="submit" [disabled]="submitting()">{{ submitting() ? 'Sending…' : 'Send feedback' }}</button>
+    </form>
+  }
+</div>

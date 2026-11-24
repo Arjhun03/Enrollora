@@ -1,0 +1,6 @@
+<div class="admin-feedback"><header><div><span class="eyebrow">STUDENT VOICE</span><h1>Course Feedback</h1><p>Review feedback submitted by enrolled students.</p></div><span class="count">{{ total() }} responses</span></header>
+  @if (loading()) { <div class="state">Loading feedback…</div> } @else if (error()) { <div class="state error">{{ error() }} <button (click)="load()">Try again</button></div> } @else if (!items().length) { <div class="state">No feedback has been submitted yet.</div> } @else {
+    <div class="feedback-list">@for (item of items(); track item.feedbackId) { <article class="feedback-card"><div class="card-top"><div><h2>{{ item.courseName }}</h2><span>{{ item.studentName }} · Student #{{ item.studentId }}</span></div><time>{{ item.submittedAt | date:'mediumDate' }}</time></div><div class="rating" [attr.aria-label]="item.rating + ' out of 5 stars'">{{ '★'.repeat(item.rating) }}<span>{{ '☆'.repeat(5 - item.rating) }}</span><b>{{ item.rating }}/5</b></div><p>{{ item.comment }}</p></article>}</div>
+    <footer><span>Showing {{ items().length }} of {{ total() }} responses</span><div><button (click)="previous()" [disabled]="page() === 1">Previous</button><span>{{ page() }} / {{ totalPages() || 1 }}</span><button (click)="next()" [disabled]="page() >= totalPages()">Next</button></div></footer>
+  }
+</div>

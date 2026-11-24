@@ -11,6 +11,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
     public DbSet<CancellationRequest> CancellationRequests => Set<CancellationRequest>();
+    public DbSet<CourseFeedback> CourseFeedback => Set<CourseFeedback>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +62,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             .WithMany()
             .HasForeignKey(x => x.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CourseFeedback>()
+            .HasOne(x => x.Student).WithMany().HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CourseFeedback>()
+            .HasOne(x => x.Course).WithMany().HasForeignKey(x => x.CourseId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CourseFeedback>().HasIndex(x => x.SubmittedAt);
 
         modelBuilder.Entity<CancellationRequest>()
             .HasOne(x => x.Enrollment)

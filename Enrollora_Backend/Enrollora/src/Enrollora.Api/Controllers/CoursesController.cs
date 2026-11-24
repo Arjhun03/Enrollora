@@ -2,6 +2,7 @@ using Enrollora.Api.DTOs;
 using Enrollora.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Enrollora.Api.Controllers;
 
@@ -39,4 +40,18 @@ public sealed class CoursesController(ICourseService service) : ControllerBase
         await service.DeactivateAsync(id, ct);
         return Ok(new ApiMessage("Course deactivated. Historical enrollments are preserved."));
     }
+
+    [HttpPost("feedback")]
+    [Authorize(Roles = "Student")]
+    public async Task<IActionResult> AddFeedback(CreateCourseFeedbackRequest request, CancellationToken ct)
+    {
+        var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await service.AddFeedbackAsync(id, request, ct);
+        return Ok(result);
+    }
+
+    [HttpGet("feedback")]
+    [Authorize(Roles = "Administrator")]
+    public Task<PagedResult<CourseFeedbackResponse>> GetFeedback([FromQuery] int? courseId, [FromQuery] PaginationQuery query, CancellationToken ct) =>
+        service.GetFeedbackAsync(courseId, query, ct);
 }

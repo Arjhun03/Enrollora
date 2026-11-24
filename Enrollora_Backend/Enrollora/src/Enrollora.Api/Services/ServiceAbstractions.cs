@@ -38,6 +38,8 @@ public interface ICourseService
     Task<CourseResponse> CreateAsync(SaveCourseRequest request, CancellationToken ct);
     Task<CourseResponse> UpdateAsync(int id, SaveCourseRequest request, CancellationToken ct);
     Task DeactivateAsync(int id, CancellationToken ct);
+    Task<CourseFeedbackResponse> AddFeedbackAsync(int studentId, CreateCourseFeedbackRequest request, CancellationToken ct);
+    Task<PagedResult<CourseFeedbackResponse>> GetFeedbackAsync(int? courseId, PaginationQuery query, CancellationToken ct);
 }
 
 public interface IEnrollmentService
