@@ -169,8 +169,6 @@ export class StudentList implements OnInit {
   studentForm = new FormGroup({
     name: new FormControl('', Validators.required),
 
-    email: new FormControl('', [Validators.required, Validators.email]),
-
     department: new FormControl('', Validators.required),
 
     age: new FormControl(18, [Validators.required, Validators.min(17), Validators.max(60)]),
@@ -186,7 +184,6 @@ export class StudentList implements OnInit {
       next: (student) => {
         this.studentForm.patchValue({
           name: student.name,
-          email: student.email,
           department: student.department,
           age: student.age,
           cgpa: student.cgpa,
@@ -194,6 +191,9 @@ export class StudentList implements OnInit {
       },
       error: (error) => {
         console.error('Failed to load student details', error);
+        alert(error?.error?.detail || error?.error?.message || 'Unable to load student details.');
+        this.isEditModalOpen = false;
+        this.editingStudentId = null;
       },
     });
   }
@@ -203,7 +203,6 @@ export class StudentList implements OnInit {
     this.editingStudentId = null;
     this.studentForm.reset({
       name: '',
-      email: '',
       department: '',
       age: 18,
       cgpa: 0,
@@ -219,7 +218,6 @@ export class StudentList implements OnInit {
 
     const studentData: UpdateStudentRequest = {
       name: formValue.name!,
-      email: formValue.email!,
       department: formValue.department!,
       age: formValue.age!,
       cgpa: formValue.cgpa!,
@@ -234,6 +232,7 @@ export class StudentList implements OnInit {
       },
       error: (error) => {
         console.error('Failed to update student:', error);
+        alert(error?.error?.detail || error?.error?.message || 'Failed to update student.');
       },
     });
   }
@@ -249,6 +248,7 @@ export class StudentList implements OnInit {
       },
       error: (error) => {
         console.error('Failed to delete student:', error);
+        alert(error?.error?.detail || error?.error?.message || 'Failed to delete student.');
       },
     });
   }

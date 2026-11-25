@@ -1,0 +1,110 @@
+.profile-page {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.profile-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-heading h1 {
+  margin: 0 0 0.35rem;
+  color: #15243a;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  font-weight: 700;
+}
+
+.profile-heading p {
+  margin-bottom: 0;
+}
+
+.eyebrow {
+  color: #58708f;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.45rem !important;
+}
+
+.profile-card {
+  background: #fff;
+  border: 1px solid #e4eaf2;
+  border-radius: 16px;
+  box-shadow: 0 8px 26px rgb(25 45 75 / 6%);
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: #52647c;
+}
+
+.profile-status {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #fff4d6;
+  color: #855a00;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.45rem 0.8rem;
+}
+
+.profile-status.approved {
+  background: #e3f7ec;
+  color: #14723d;
+}
+
+.identity-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid #edf0f5;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+}
+
+.profile-avatar {
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #e7efff;
+  color: #285bc1;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.identity-row h2 {
+  margin: 0;
+  color: #1d2b40;
+  font-size: 1.1rem;
+}
+
+.identity-row p {
+  margin: 0.2rem 0;
+  color: #52647c;
+}
+
+.identity-row small {
+  color: #7b899c;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.field-error {
+  display: block;
+  margin-top: 0.3rem;
+  color: #b42318;
+}
