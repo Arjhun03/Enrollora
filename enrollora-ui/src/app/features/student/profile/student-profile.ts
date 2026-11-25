@@ -58,6 +58,7 @@ export class StudentProfileComponent implements OnInit {
           cgpa: student.cgpa,
         });
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.getErrorMessage(error, 'Unable to load your profile.');
@@ -89,6 +90,7 @@ export class StudentProfileComponent implements OnInit {
         });
         this.successMessage = 'Your profile was updated.';
         this.isSaving = false;
+        this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.getErrorMessage(error, 'Unable to save your profile.');
