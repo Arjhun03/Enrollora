@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StudentResponse, UpdateStudentRequest } from '../../admin/students/student.models';
 import { StudentService } from '../../admin/students/student.service';
@@ -14,6 +14,7 @@ import { StudentService } from '../../admin/students/student.service';
 })
 export class StudentProfileComponent implements OnInit {
   private readonly studentService = inject(StudentService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   student: StudentResponse | null = null;
   isLoading = true;
@@ -57,10 +58,12 @@ export class StudentProfileComponent implements OnInit {
           cgpa: student.cgpa,
         });
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.getErrorMessage(error, 'Unable to load your profile.');
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -87,10 +90,12 @@ export class StudentProfileComponent implements OnInit {
         });
         this.successMessage = 'Your profile was updated.';
         this.isSaving = false;
+        this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.getErrorMessage(error, 'Unable to save your profile.');
         this.isSaving = false;
+        this.cdr.markForCheck();
       },
     });
   }
