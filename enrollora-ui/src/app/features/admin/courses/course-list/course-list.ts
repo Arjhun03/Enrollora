@@ -35,6 +35,18 @@ export class CourseListComponent implements OnInit {
   deactivateError = signal('');
   newCourse: SaveCourseRequest = { courseName: '', duration: '', fees: 0, capacity: 1, isActive: true };
 
+  selectedCourse = signal<CourseResponse | null>(null);
+  isDetailsOpen = signal(false);
+  isDetailsLoading = signal(false);
+  detailsError = signal('');
+  isEditFormOpen = signal(false);
+  editingCourseId = signal<number | null>(null);
+  editCourse: SaveCourseRequest = { courseName: '', duration: '', fees: 0, capacity: 1, isActive: true };
+  isUpdating = signal(false);
+  isEditLoading = signal(false);
+  editError = signal('');
+  editLoadError = signal('');
+
   ngOnInit(): void {
     this.loadCourses();
   }
@@ -68,6 +80,84 @@ export class CourseListComponent implements OnInit {
     this.searchTerm.set(value);
     this.pageNumber.set(1);
     this.loadCourses();
+  }
+
+  viewCourse(id: number): void {
+    this.selectedCourse.set(null);
+    this.detailsError.set('');
+    this.isDetailsLoading.set(true);
+    this.isDetailsOpen.set(true);
+    this.courseService.getCourseById(id).subscribe({
+      next: (course) => {
+        this.selectedCourse.set(course);
+        this.isDetailsLoading.set(false);
+      },
+      error: (error) => {
+        this.detailsError.set(error?.error?.detail || error?.error?.message || 'Unable to load course details.');
+        this.isDetailsLoading.set(false);
+      },
+    });
+  }
+
+  closeDetails(): void {
+    this.isDetailsOpen.set(false);
+    this.selectedCourse.set(null);
+    this.detailsError.set('');
+  }
+
+  editCourseById(id: number): void {
+    this.editingCourseId.set(id);
+    this.editError.set('');
+    this.editLoadError.set('');
+    this.isEditLoading.set(true);
+    this.isEditFormOpen.set(true);
+    this.courseService.getCourseById(id).subscribe({
+      next: (course) => {
+        this.editCourse = {
+          courseName: course.courseName,
+          duration: course.duration,
+          fees: course.fees,
+          capacity: course.capacity,
+          isActive: course.isActive,
+        };
+        this.isEditLoading.set(false);
+      },
+      error: (error) => {
+        this.editLoadError.set(error?.error?.detail || error?.error?.message || 'Unable to load course for editing.');
+        this.isEditLoading.set(false);
+      },
+    });
+  }
+
+  closeEditForm(): void {
+    if (this.isUpdating()) return;
+    this.isEditFormOpen.set(false);
+    this.editingCourseId.set(null);
+    this.editError.set('');
+  }
+
+  updateCourse(): void {
+    const id = this.editingCourseId();
+    const request = { ...this.editCourse, courseName: this.editCourse.courseName.trim(), duration: this.editCourse.duration.trim() };
+    if (id === null || !request.courseName || !request.duration || request.fees < 0 || request.capacity < 1) {
+      this.editError.set('Enter a course name, duration, non-negative fee, and capacity of at least 1.');
+      return;
+    }
+
+    this.isUpdating.set(true);
+    this.editError.set('');
+    this.courseService.updateCourse(id, request).subscribe({
+      next: () => {
+        this.isUpdating.set(false);
+        this.isEditFormOpen.set(false);
+        this.editingCourseId.set(null);
+        this.loadCourses();
+      },
+      error: (error) => {
+        this.editError.set(error?.error?.detail || error?.error?.message || 'Unable to update course. Please try again.');
+        this.isUpdating.set(false);
+      },
+    });
   }
 
   openCreateForm(): void {

@@ -32,6 +32,64 @@
     </div>
   }
 
+  @if (isDetailsOpen()) {
+    <div class="modal-backdrop" (click)="closeDetails()">
+      <section class="course-modal" role="dialog" aria-modal="true" aria-labelledby="course-details-title" (click)="$event.stopPropagation()">
+        <div class="modal-heading">
+          <div><span class="eyebrow">COURSE DETAILS</span><h2 id="course-details-title">Course information</h2></div>
+          <button class="modal-close" type="button" aria-label="Close" (click)="closeDetails()">×</button>
+        </div>
+        @if (isDetailsLoading()) {
+          <div class="state-message"><div class="loader"></div><p>Loading course...</p></div>
+        } @else if (detailsError()) {
+          <p class="form-error" role="alert">{{ detailsError() }}</p>
+        } @else if (selectedCourse(); as course) {
+          <div class="course-details">
+            <h3>{{ course.courseName }}</h3>
+            <p>Course #{{ course.courseId }}</p>
+            <dl>
+              <div><dt>Duration</dt><dd>{{ course.duration }}</dd></div>
+              <div><dt>Fees</dt><dd>₹{{ course.fees | number: '1.0-2' }}</dd></div>
+              <div><dt>Enrollment</dt><dd>{{ course.enrolledCount }} / {{ course.capacity }}</dd></div>
+              <div><dt>Available seats</dt><dd>{{ course.availableSeats }}</dd></div>
+              <div><dt>Status</dt><dd>{{ course.isActive ? 'Active' : 'Inactive' }}</dd></div>
+            </dl>
+          </div>
+          <div class="modal-actions"><button class="btn-cancel" type="button" (click)="closeDetails()">Close</button><button class="btn-submit" type="button" (click)="closeDetails(); editCourseById(course.courseId)">Edit course</button></div>
+        }
+      </section>
+    </div>
+  }
+
+  @if (isEditFormOpen()) {
+    <div class="modal-backdrop" (click)="closeEditForm()">
+      <section class="course-modal" role="dialog" aria-modal="true" aria-labelledby="edit-course-title" (click)="$event.stopPropagation()">
+        <div class="modal-heading">
+          <div><span class="eyebrow">COURSE MANAGEMENT</span><h2 id="edit-course-title">Edit Course</h2><p>Update course details and availability.</p></div>
+          <button class="modal-close" type="button" aria-label="Close" (click)="closeEditForm()" [disabled]="isUpdating()">×</button>
+        </div>
+        @if (isEditLoading()) {
+          <div class="state-message"><div class="loader"></div><p>Loading course details...</p></div>
+        } @else if (editLoadError()) {
+          <p class="form-error" role="alert">{{ editLoadError() }}</p>
+          <div class="modal-actions"><button class="btn-cancel" type="button" (click)="closeEditForm()">Close</button><button class="btn-submit" type="button" (click)="editCourseById(editingCourseId()!)">Retry</button></div>
+        } @else {
+        <form (ngSubmit)="updateCourse()" #editCourseForm="ngForm">
+          <label>Course name<input name="editCourseName" [(ngModel)]="editCourse.courseName" required maxlength="150" /></label>
+          <label>Duration<input name="editDuration" [(ngModel)]="editCourse.duration" required maxlength="80" /></label>
+          <div class="form-row">
+            <label>Fees (₹)<input name="editFees" type="number" [(ngModel)]="editCourse.fees" required min="0" step="0.01" /></label>
+            <label>Capacity<input name="editCapacity" type="number" [(ngModel)]="editCourse.capacity" required min="1" step="1" /></label>
+          </div>
+          <label class="active-toggle"><input name="editIsActive" type="checkbox" [(ngModel)]="editCourse.isActive" /> Make course available for enrollment</label>
+          @if (editError()) { <p class="form-error" role="alert">{{ editError() }}</p> }
+          <div class="modal-actions"><button class="btn-cancel" type="button" (click)="closeEditForm()" [disabled]="isUpdating()">Cancel</button><button class="btn-submit" type="submit" [disabled]="editCourseForm.invalid || isUpdating() || isEditLoading()">{{ isUpdating() ? 'Saving...' : 'Save changes' }}</button></div>
+        </form>
+        }
+      </section>
+    </div>
+  }
+
   <!-- Summary Cards -->
   <div class="summary-grid">
     <div class="summary-card purple">
@@ -183,11 +241,15 @@
                 </td>
 
                 <td>
+                  <div class="course-action-row">
+                    <button class="btn-row-action" type="button" (click)="viewCourse(course.courseId)">View</button>
+                    <button class="btn-row-action" type="button" (click)="editCourseById(course.courseId)">Edit</button>
                   @if (course.isActive) {
                     <button class="btn-cancel" type="button" (click)="deactivateCourse(course)" [disabled]="isDeactivating() !== null">
                       {{ isDeactivating() === course.courseId ? 'Deactivating...' : 'Deactivate' }}
                     </button>
-                  } @else { <span>—</span> }
+                  } @else { <span>Inactive</span> }
+                  </div>
                 </td>
               </tr>
             }

@@ -519,3 +519,14 @@
 .btn-submit { border: 0; background: #8b5cf6; color: #fff; }
 .btn-submit:disabled, .btn-cancel:disabled { opacity: .55; cursor: not-allowed; }
 @media (max-width: 480px) { .course-modal { padding: 20px; } .form-row { grid-template-columns: 1fr; } }
+
+
+.course-action-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.btn-row-action { border: 1px solid #e5e1ec; background: #fff; color: #635a75; padding: 7px 10px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.btn-row-action:hover { border-color: #a78bfa; color: #8050d8; background: #faf7ff; }
+.course-details h3 { margin: 0 0 4px; color: #302942; }
+.course-details > p { color: #898397; font-size: 13px; }
+.course-details dl { display: grid; gap: 10px; margin: 20px 0; }
+.course-details dl div { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 9px; border-bottom: 1px solid #f0edf5; }
+.course-details dt { color: #898397; font-size: 13px; }
+.course-details dd { margin: 0; color: #342c47; font-weight: 700; text-align: right; }

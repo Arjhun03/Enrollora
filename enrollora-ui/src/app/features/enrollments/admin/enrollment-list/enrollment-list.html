@@ -22,6 +22,26 @@
     </div>
   </div>
 
+  <section class="filter-card" aria-label="Filter enrollments">
+    <p class="filter-help">Use a student or course ID to view only matching enrollments. IDs appear in the table below.</p>
+    <div class="filter-field">
+      <label for="student-id-filter">Filter by student ID</label>
+      <input id="student-id-filter" name="studentIdFilter" type="text" inputmode="numeric" [(ngModel)]="studentIdFilter" placeholder="e.g. 12" />
+    </div>
+    <span class="filter-or">or</span>
+    <div class="filter-field">
+      <label for="course-id-filter">Filter by course ID</label>
+      <input id="course-id-filter" name="courseIdFilter" type="text" inputmode="numeric" [(ngModel)]="courseIdFilter" placeholder="e.g. 4" />
+    </div>
+    <div class="filter-actions">
+      <button type="button" class="btn btn-primary" (click)="applyFilters()">Apply filter</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">Clear</button>
+    </div>
+    @if (activeStudentId() !== null) { <small class="active-filter">Showing student #{{ activeStudentId() }}</small> }
+    @if (activeCourseId() !== null) { <small class="active-filter">Showing course #{{ activeCourseId() }}</small> }
+    @if (filterError()) { <div class="filter-error" role="alert">{{ filterError() }}</div> }
+  </section>
+
   <!-- Loading -->
   @if (isLoading()) {
     <div class="state-message">
@@ -67,6 +87,7 @@
                     <div class="student-email">
                       {{ enrollment.studentEmail }}
                     </div>
+                    <small class="student-id">Student #{{ enrollment.studentId }}</small>
                   </div>
                 </div>
               </td>
@@ -85,10 +106,10 @@
               <td>
                 <span
                   class="status-badge"
-                  [class.active]="enrollment.status === 1"
-                  [class.inactive]="enrollment.status !== 1"
+                  [class.active]="enrollment.status === 0"
+                  [class.inactive]="enrollment.status !== 0"
                 >
-                  {{ enrollment.status === 1 ? 'Active' : 'Cancelled' }}
+                  {{ enrollment.status === 0 ? 'Active' : 'Cancelled' }}
                 </span>
               </td>
             </tr>
