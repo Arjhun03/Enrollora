@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { EnrollmentService } from '../../enrollment.service';
 import { EnrollmentResponse } from '../../enrollment.models';
@@ -7,7 +8,7 @@ import { EnrollmentResponse } from '../../enrollment.models';
 @Component({
   selector: 'app-enrollment-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './enrollment-list.html',
   styleUrl: './enrollment-list.css',
 })
@@ -24,6 +25,12 @@ export class EnrollmentListComponent implements OnInit {
   totalRecords = signal(0);
   totalPages = signal(0);
 
+  studentIdFilter = '';
+  courseIdFilter = '';
+  activeStudentId = signal<number | null>(null);
+  activeCourseId = signal<number | null>(null);
+  filterError = signal('');
+
   ngOnInit(): void {
     this.loadEnrollments();
   }
@@ -32,7 +39,15 @@ export class EnrollmentListComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.enrollmentService.getEnrollments(this.pageNumber(), this.pageSize()).subscribe({
+    const studentId = this.activeStudentId();
+    const courseId = this.activeCourseId();
+    const request = studentId !== null
+      ? this.enrollmentService.getEnrollmentsByStudent(studentId, this.pageNumber(), this.pageSize())
+      : courseId !== null
+        ? this.enrollmentService.getEnrollmentsByCourse(courseId, this.pageNumber(), this.pageSize())
+        : this.enrollmentService.getEnrollments(this.pageNumber(), this.pageSize());
+
+    request.subscribe({
       next: (response) => {
         this.enrollments.set(response.items);
         this.totalRecords.set(response.totalRecords);
@@ -46,6 +61,37 @@ export class EnrollmentListComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  applyFilters(): void {
+    const studentId = this.studentIdFilter.trim();
+    const courseId = this.courseIdFilter.trim();
+    this.filterError.set('');
+
+    if (studentId && courseId) {
+      this.filterError.set('Enter either a student ID or a course ID, not both.');
+      return;
+    }
+    if ((studentId && (!/^\d+$/.test(studentId) || Number(studentId) < 1)) ||
+        (courseId && (!/^\d+$/.test(courseId) || Number(courseId) < 1))) {
+      this.filterError.set('IDs must be positive whole numbers.');
+      return;
+    }
+
+    this.activeStudentId.set(studentId ? Number(studentId) : null);
+    this.activeCourseId.set(courseId ? Number(courseId) : null);
+    this.pageNumber.set(1);
+    this.loadEnrollments();
+  }
+
+  clearFilters(): void {
+    this.studentIdFilter = '';
+    this.courseIdFilter = '';
+    this.activeStudentId.set(null);
+    this.activeCourseId.set(null);
+    this.filterError.set('');
+    this.pageNumber.set(1);
+    this.loadEnrollments();
   }
 
   nextPage(): void {
